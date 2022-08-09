@@ -13,13 +13,17 @@ app = Flask(__name__)
 db = DB()
 
 
-@app.get('/')
+@app.get('/scatter_chart')
 def get_scatter_plot():
-    return render_template('scatter_chart.html')
+    args = request.args
+    st_year = int(args.get('st_year'))
+    end_year = int(args.get('end_year'))
+
+    return render_template('scatter_chart.html', st_year=st_year, end_year=end_year)
 
 
-@app.get("/test")
-def get_test():
+@app.get("/data")
+def get_data():
     args = request.args
 
     db_results = db.filterStatements(

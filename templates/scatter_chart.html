@@ -18,19 +18,7 @@
     var divElement = d3.select('#vis');
     var titleElement = d3.select('#vis_ttl');
     var visualize = function(vegaEmbed, width, height, el) {
-      var spec = {
-        "config": {
-          "view": {
-            "continuousWidth": 400,
-            "continuousHeight": 300
-          }
-        },
-        "data": {
-          "url": "http://127.0.0.1:5000/data?st_year={{st_year}}&end_year={{end_year}}",
-          "format": {
-            "type": "json"
-          }
-        },
+      var scatter = {
         "mark": "circle",
         "encoding": {
           "tooltip": [
@@ -68,6 +56,77 @@
           }
         },
         "width": height,
+      };
+      var topic_bar = {
+        "transform": [{"flatten": ["topics"]}],
+        "mark": "bar",
+        "encoding": {
+          "color": {
+            "condition": {
+              "type": "nominal",
+              "field": "income",
+              "selection": "selector001"
+            },
+            "value": "lightgray"
+          },
+          "x": {
+            "type": "quantitative",
+            "aggregate": "count",
+            "axis": {
+              "title": ""
+            }
+          },
+          "y": {
+            "type": "nominal",
+            "axis": {
+              "labelFontSize": 11,
+              "ticks": false,
+              "title": ""
+            },
+            "field": "topics",
+            "sort": "-x"
+          }
+        },
+        "selection": {
+          "selector001": {
+            "type": "multi",
+            "fields": [
+              "topics"
+            ]
+          }
+        },
+        "height": height / 2,
+        "width": width,
+        "title": "Topic"
+      };
+      var spec = {
+        "config": {
+          "view": {
+            "continuousWidth": 400,
+            "continuousHeight": 300
+          }
+        },
+        "data": {
+          "url": "http://127.0.0.1:5000/data?st_year={{st_year}}&end_year={{end_year}}",
+          "format": {
+            "type": "json"
+          }
+        },
+        "hconcat": [
+          {
+            "vconcat": [
+              scatter
+            ],
+            "transform": [
+              {
+                "filter": {
+                  "selection": "selector001"
+                }
+              }
+            ]
+          },
+          topic_bar
+        ],
         "$schema": "https://vega.github.io/schema/vega-lite/v4.8.1.json"
       };
       var embedOpt = {"mode": "vega-lite"};

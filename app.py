@@ -13,6 +13,17 @@ app = Flask(__name__)
 db = DB()
 
 
+@app.get('/dashboard')
+def get_dashboard():
+    return render_template('dashboard.html')
+
+
+@app.get('/data/dashboard')
+def get_dashboard_data():
+    file = open('altair-data-dashboard.json')
+    return jsonify(next(file))
+
+
 @app.get('/scatter_chart')
 def get_scatter_plot():
     args = request.args
@@ -47,7 +58,7 @@ def get_data():
     for tsne_result, db_entry in zip(tsne_results, db_results):
         graph_data.append({
                 'text': db_entry['text'],
-                'topics': ', '.join(db_entry['topic']),
+                'topics': db_entry['topic'],
                 'emotions': ', '.join(db_entry['emotion']),
                 'x': str(tsne_result[0]),
                 'y': str(tsne_result[1]),

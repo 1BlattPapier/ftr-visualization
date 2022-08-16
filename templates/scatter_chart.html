@@ -21,6 +21,12 @@
       var scatter = {
         "mark": "circle",
         "encoding": {
+          "color": {
+            "condition": {
+              "selection": "selector001"
+            },
+            "value": "lightgray"
+          },
           "tooltip": [
             {
               "type": "nominal",
@@ -58,18 +64,10 @@
         "width": height,
       };
       var topic_bar = {
-        "transform": [
-        {
-          "flatten": ["topics"],
-          "as": ["topics_flattened"]
-        },
-        ],
         "mark": "bar",
         "encoding": {
           "color": {
             "condition": {
-              "type": "nominal",
-              "field": "topics_flattened",
               "selection": "selector001"
             },
             "value": "lightgray"
@@ -101,7 +99,7 @@
           }
         },
         "height": height / 2,
-        "width": width,
+        "width": width / 2,
         "title": "Topic"
       };
       var spec = {
@@ -117,23 +115,14 @@
             "type": "json"
           }
         },
-        "hconcat": [
+        "transform": [
           {
-            "vconcat": [
-              scatter
-            ],
-            "transform": [
-              {
-                "flatten": ["topics"],
-                "as": ["topics_flattened"]
-              },
-              {
-                "filter": {
-                  "selection": "selector001"
-                }
-              }
-            ]
+            "flatten": ["topics"],
+            "as": ["topics_flattened"]
           },
+        ],
+        "hconcat": [
+          scatter,
           topic_bar
         ],
         "$schema": "https://vega.github.io/schema/vega-lite/v4.8.1.json"

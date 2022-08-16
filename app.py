@@ -4,7 +4,7 @@ from lib2to3.pgen2.pgen import DFAState
 from flask import Flask, request, render_template, jsonify
 
 import pandas
-from sklearn.manifold import TSNE
+from sklearn.decomposition import PCA
 
 from db import DB
 
@@ -51,11 +51,12 @@ def get_data():
     data_df = pandas.DataFrame.from_records(data)
     data_df = data_df.fillna(0)
 
-    tsne = TSNE()
-    tsne_results = tsne.fit_transform(data_df)
+    # Use either tsne or pca here
+    pca = PCA()
+    pca_results = pca.fit_transform(data_df)
 
     graph_data = []
-    for tsne_result, db_entry in zip(tsne_results, db_results):
+    for tsne_result, db_entry in zip(pca_results, db_results):
         graph_data.append({
                 'text': db_entry['text'],
                 'topics': db_entry['topic'],

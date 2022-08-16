@@ -58,13 +58,18 @@
         "width": height,
       };
       var topic_bar = {
-        "transform": [{"flatten": ["topics"]}],
+        "transform": [
+        {
+          "flatten": ["topics"],
+          "as": ["topics_flattened"]
+        },
+        ],
         "mark": "bar",
         "encoding": {
           "color": {
             "condition": {
               "type": "nominal",
-              "field": "income",
+              "field": "topics_flattened",
               "selection": "selector001"
             },
             "value": "lightgray"
@@ -83,7 +88,7 @@
               "ticks": false,
               "title": ""
             },
-            "field": "topics",
+            "field": "topics_flattened",
             "sort": "-x"
           }
         },
@@ -91,7 +96,7 @@
           "selector001": {
             "type": "multi",
             "fields": [
-              "topics"
+              "topics_flattened"
             ]
           }
         },
@@ -118,6 +123,10 @@
               scatter
             ],
             "transform": [
+              {
+                "flatten": ["topics"],
+                "as": ["topics_flattened"]
+              },
               {
                 "filter": {
                   "selection": "selector001"

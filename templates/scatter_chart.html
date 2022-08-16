@@ -23,7 +23,12 @@
         "encoding": {
           "color": {
             "condition": {
-              "selection": "selector001"
+              "selection": {
+                "or": [
+                  "selectorTopic",
+                  "selectorEmotion"
+                ]
+              }
             },
             "value": "lightgray"
           },
@@ -52,7 +57,7 @@
         },
         "height": width,
         "selection": {
-          "selector004": {
+          "selectorTooltip": {
             "type": "interval",
             "bind": "scales",
             "encodings": [
@@ -63,12 +68,13 @@
         },
         "width": height,
       };
+
       var topic_bar = {
         "mark": "bar",
         "encoding": {
           "color": {
             "condition": {
-              "selection": "selector001"
+              "selection": "selectorTopic"
             },
             "value": "lightgray"
           },
@@ -91,17 +97,58 @@
           }
         },
         "selection": {
-          "selector001": {
+          "selectorTopic": {
             "type": "multi",
             "fields": [
               "topics_flattened"
             ]
           }
         },
-        "height": height / 2,
+        "height": height * (10 / 35),
         "width": width / 2,
         "title": "Topic"
       };
+
+      var emotion_bar = {
+        "mark": "bar",
+        "encoding": {
+          "color": {
+            "condition": {
+              "selection": "selectorEmotion"
+            },
+            "value": "lightgray"
+          },
+          "x": {
+            "type": "quantitative",
+            "aggregate": "count",
+            "axis": {
+              "title": ""
+            }
+          },
+          "y": {
+            "type": "nominal",
+            "axis": {
+              "labelFontSize": 11,
+              "ticks": false,
+              "title": ""
+            },
+            "field": "emotions_flattened",
+            "sort": "-x"
+          }
+        },
+        "selection": {
+          "selectorEmotion": {
+            "type": "multi",
+            "fields": [
+              "emotions_flattened"
+            ]
+          }
+        },
+        "height": height * (25 / 35),
+        "width": width / 2,
+        "title": "Emotion"
+      };
+
       var spec = {
         "config": {
           "view": {
@@ -120,10 +167,19 @@
             "flatten": ["topics"],
             "as": ["topics_flattened"]
           },
+          {
+            "flatten": ["emotions"],
+            "as": ["emotions_flattened"]
+          },
         ],
         "hconcat": [
           scatter,
-          topic_bar
+          {
+            "vconcat": [
+              topic_bar,
+              emotion_bar
+            ]
+          }
         ],
         "$schema": "https://vega.github.io/schema/vega-lite/v4.8.1.json"
       };

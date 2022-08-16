@@ -60,7 +60,7 @@ def get_data():
         graph_data.append({
                 'text': db_entry['text'],
                 'topics': db_entry['topic'],
-                'emotions': ', '.join(db_entry['emotion']),
+                'emotions': db_entry['emotion'],
                 'x': str(tsne_result[0]),
                 'y': str(tsne_result[1]),
             })

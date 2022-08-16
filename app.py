@@ -15,22 +15,11 @@ db = DB()
 
 @app.get('/dashboard')
 def get_dashboard():
-    return render_template('dashboard.html')
-
-
-@app.get('/data/dashboard')
-def get_dashboard_data():
-    file = open('altair-data-dashboard.json')
-    return jsonify(next(file))
-
-
-@app.get('/scatter_chart')
-def get_scatter_plot():
     args = request.args
     st_year = int(args.get('st_year'))
     end_year = int(args.get('end_year'))
 
-    return render_template('scatter_chart.html', st_year=st_year, end_year=end_year)
+    return render_template('dashboard.html', st_year=st_year, end_year=end_year)
 
 
 @app.get("/data")

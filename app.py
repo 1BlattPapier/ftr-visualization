@@ -15,11 +15,7 @@ db = DB()
 
 @app.get('/dashboard')
 def get_dashboard():
-    args = request.args
-    st_year = int(args.get('st_year'))
-    end_year = int(args.get('end_year'))
-
-    return render_template('dashboard.html', st_year=st_year, end_year=end_year)
+    return render_template('dashboard.html')
 
 
 @app.get("/data")

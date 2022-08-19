@@ -63,9 +63,10 @@ def get_new_dashboard():
     brush = alt.selection(type='interval')
     selection = alt.selection_multi(fields=["top_flatten"])
     selconlyem = alt.selection_multi(fields=["em_flatten"])
-    color = alt.condition(selconlyem | selection | brush, if_true=alt.value('green'),
+    color = alt.condition(selconlyem | selection | brush, if_true= alt.Color('top_flatten:N', legend=None),
                           if_false=alt.value('lightgray'))
-
+    color2 =alt.condition(selconlyem | selection , if_true= alt.Color('top_flatten:N', legend=None),
+                          if_false=alt.value('lightgray'))
     chart = alt.Chart().mark_circle().encode(
         x='x:Q',
         y='y:Q',
@@ -80,7 +81,7 @@ def get_new_dashboard():
     bars = alt.Chart().mark_bar().encode(
         x=alt.X(type="quantitative", aggregate="count"),
         y=alt.Y("em_flatten:N", sort='-x'),
-        color=color
+        color=color2
     ).add_selection(
         selconlyem
     ).transform_filter(
@@ -89,7 +90,7 @@ def get_new_dashboard():
     topic_bars = alt.Chart().mark_bar().encode(
         x=alt.X(type="quantitative", aggregate="count"),
         y=alt.Y("top_flatten:N", sort='-x'),
-        color=color
+        color=color2
     ).add_selection(
         selection
     ).transform_filter(

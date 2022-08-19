@@ -9,9 +9,7 @@ import pandas
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 
-
 from db import DB
-
 
 app = Flask(__name__)
 db = DB()
@@ -20,8 +18,6 @@ db = DB()
 @app.get('/dashboard')
 def get_dashboard():
     return render_template('newdash.html')
-
-
 
 
 @app.get('/get_chart')
@@ -41,8 +37,8 @@ def get_new_dashboard():
         data.append(topic_dict)
     data_df = pandas.DataFrame.from_records(data)
     data_df = data_df.sample(frac=1)
-    if len(data_df)> 10000:
-        data_df = data_df.iloc[:10000,:]
+    if len(data_df) > 10000:
+        data_df = data_df.iloc[:10000, :]
     data_df = data_df.fillna(0)
 
     # Use either tsne or pca here
@@ -64,26 +60,31 @@ def get_new_dashboard():
             'y': str(tsne_result[1]),
         })
     graph_data = pd.DataFrame(graph_data)
+    brush = alt.selection(type='interval')
     selection = alt.selection_multi(fields=["top_flatten"])
     selconlyem = alt.selection_multi(fields=["em_flatten"])
-    color = alt.condition(selconlyem | selection, if_true=alt.value('green'),
+    color = alt.condition(selconlyem | selection | brush, if_true=alt.value('green'),
                           if_false=alt.value('lightgray'))
 
-    chart = alt.Chart().mark_point().encode(
+    chart = alt.Chart().mark_circle().encode(
         x='x:Q',
         y='y:Q',
         color=color,
-        tooltip = ['text:N', "topics:N", "emotions:N"],
+        tooltip=['text:N', "topics:N", "emotions:N"],
+
     ).properties(
-    width=800,
-    height=600
-    ).interactive()
+        width=800,
+        height=600
+    ).add_selection(brush)
+
     bars = alt.Chart().mark_bar().encode(
         x=alt.X(type="quantitative", aggregate="count"),
         y=alt.Y("em_flatten:N", sort='-x'),
         color=color
     ).add_selection(
         selconlyem
+    ).transform_filter(
+    brush
     )
     topic_bars = alt.Chart().mark_bar().encode(
         x=alt.X(type="quantitative", aggregate="count"),
@@ -91,6 +92,8 @@ def get_new_dashboard():
         color=color
     ).add_selection(
         selection
+    ).transform_filter(
+    brush
     )
 
     bars = alt.vconcat(
@@ -114,8 +117,6 @@ def get_new_dashboard():
 
     )
     return chart.to_json()
-
-
 
 
 @app.get("/data")
@@ -143,11 +144,11 @@ def get_data():
     graph_data = []
     for tsne_result, db_entry in zip(pca_results, db_results):
         graph_data.append({
-                'text': db_entry['text'],
-                'topics': db_entry['topic'],
-                'emotions': db_entry['emotion'],
-                'x': str(tsne_result[0]),
-                'y': str(tsne_result[1]),
-            })
+            'text': db_entry['text'],
+            'topics': db_entry['topic'],
+            'emotions': db_entry['emotion'],
+            'x': str(tsne_result[0]),
+            'y': str(tsne_result[1]),
+        })
 
     return json.dumps(graph_data)

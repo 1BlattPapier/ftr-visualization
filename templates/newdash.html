@@ -5,96 +5,59 @@
     .error {
         color: red;
     }
-    .switch {
-  position: relative;
-  display: inline-block;
-  width: 60px;
-  height: 34px;
-}
 
-.switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
 
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  -webkit-transition: .4s;
-  transition: .4s;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 26px;
-  width: 26px;
-  left: 4px;
-  bottom: 4px;
-  background-color: white;
-  -webkit-transition: .4s;
-  transition: .4s;
-}
-
-input:checked + .slider {
-  background-color: #2196F3;
-}
-
-input:focus + .slider {
-  box-shadow: 0 0 1px #2196F3;
-}
-
-input:checked + .slider:before {
-  -webkit-transform: translateX(26px);
-  -ms-transform: translateX(26px);
-  transform: translateX(26px);
-}
-
-/* Rounded sliders */
-.slider.round {
-  border-radius: 34px;
-}
-
-.slider.round:before {
-  border-radius: 50%;
-}
   </style>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+
   <script type="text/javascript" src="https://d3js.org/d3-selection.v1.min.js"></script>
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm//vega@5"></script>
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm//vega-lite@4.8.1"></script>
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm//vega-embed@6"></script>
-</head>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/11.0.2/bootstrap-slider.min.js"></script>
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/11.0.2/css/bootstrap-slider.min.css">
+
+   </head>
 <body>
-  <h3 id="vis_ttl" style="font-family: Helvetica;">Future time reference visualisation</h3>
-  <div class="pb-5 ">
-    <label for="yearRange" class="form-label">Year to display</label>
-    <input type="range" class="form-range" min="2005" max="2022" step="1" id="yearRange" onchange="reloadData()">
-  </div>
-      <span>TSNE</span>
-  <label class="switch">
-  <input id="PCATSNEselect" type="checkbox" onchange="reloadData()" checked="false">
-  <span class="slider round">
+  <h3 id="vis_ttl" style="font-family: Helvetica;">Future time reference visualisation</h3> <br>
+  <div class="container ">
+  <div class="row">
+        <div class="col-lg-6">
+
+            <b>2001</b> <input id="ex2"  type="text" class="span2" value="" data-slider-min="2001" data-slider-max="2022" data-slider-step="1" data-slider-value="[2012,2013]"/> <b>2022</b>
+            <span id="ex6CurrentSliderValLabel">Years: <span id="ex6SliderVal">2012,2013</span></span>
+        </div>
+        <div class="col-lg-3">
+
+        <div class="custom-control custom-switch">
+  <input type="checkbox" class="custom-control-input" id="customSwitch1">
+  <label class="custom-control-label" for="customSwitch1">PCA/TSNE</label>
+</div>
 
 
-  </span>
-    </label>
-      <span>PCA</span>
+      </div>
+      <div class="col-lg-3">
+          <input  onclick="reloadData()" type="button" value="GEt Data">
+      </div>
+</div>
+      </div>
+
+
+
   </div>
   <div class="charts text-center">
       <div class="row"><div id="chart"></div></div><hr>
         <!-- Placeholder for the tooltip -->
 
-  </div>>
+  </div>
 
   <script>
+      var slider = new Slider('#ex2', {});
+      slider.on("slide", function(sliderValue) {
+	document.getElementById("ex6SliderVal").textContent = sliderValue;
+});
+
    function parse(url, div) {
         var opt = {
           mode: "vega-lite",
@@ -108,9 +71,10 @@ input:checked + .slider:before {
         });
       }
    parse("/get_chart?st_year=2012&end_year=2013&algo=PCA","chart");
-   var reloadData = function() {
-        var mode = document.getElementById("PCATSNEselect")
-        console.log(mode.checked)
+   function reloadData(){
+
+        var mode = document.getElementById("customSwitch1")
+
         var dimreduce = "&algo="
         if (mode.checked){
            dimreduce += "PCA";
@@ -118,9 +82,9 @@ input:checked + .slider:before {
 
             dimreduce += "TSNE";
         }
-        var start_year = parseInt(document.getElementById("yearRange").value);
-        var end_year = start_year + 1;
-        var url = "/get_chart?st_year=" + start_year + "&end_year=" + end_year+dimreduce;
+
+        var start_year = slider.getValue();
+        var url = "/get_chart?st_year=" + start_year[0] + "&end_year=" + start_year[1]+dimreduce;
         parse(url, "chart");
     }
 

@@ -19,9 +19,12 @@ db = DB()
 def get_dashboard():
     return render_template('newdash.html')
 
+
 @app.get("/heatmap")
 def get_heatmap():
     return render_template('heatmap.html')
+
+
 @app.get('/get_chart')
 def get_new_dashboard():
     alt.data_transformers.disable_max_rows()
@@ -65,10 +68,10 @@ def get_new_dashboard():
     brush = alt.selection(type='interval')
     selection = alt.selection_multi(fields=["top_flatten"])
     selconlyem = alt.selection_multi(fields=["em_flatten"])
-    color = alt.condition(selconlyem | selection | brush, if_true= alt.Color('top_flatten:N', legend=None),
+    color = alt.condition(selconlyem | selection | brush, if_true=alt.Color('top_flatten:N', legend=None),
                           if_false=alt.value('lightgray'))
-    color2 =alt.condition(selconlyem | selection , if_true= alt.Color('top_flatten:N', legend=None),
-                          if_false=alt.value('lightgray'))
+    color2 = alt.condition(selconlyem | selection, if_true=alt.Color('top_flatten:N', legend=None),
+                           if_false=alt.value('lightgray'))
     chart = alt.Chart().mark_circle().encode(
         x='x:Q',
         y='y:Q',
@@ -87,7 +90,7 @@ def get_new_dashboard():
     ).add_selection(
         selconlyem
     ).transform_filter(
-    brush
+        brush
     )
     topic_bars = alt.Chart().mark_bar().encode(
         x=alt.X(type="quantitative", aggregate="count"),
@@ -96,7 +99,7 @@ def get_new_dashboard():
     ).add_selection(
         selection
     ).transform_filter(
-    brush
+        brush
     )
 
     bars = alt.vconcat(
@@ -121,6 +124,7 @@ def get_new_dashboard():
     )
     return chart.to_json()
 
+
 @app.get("/heatmap_data")
 def get_heatmap_data():
     alt.data_transformers.disable_max_rows()
@@ -130,20 +134,20 @@ def get_heatmap_data():
     data_df.pop("meta")
     data_df["Year"] = timestamp
     heat_topic = alt.Chart().mark_rect().encode(
-        x=alt.X('Year:N',title="Year"),
-        y=alt.Y("top_flatten:N", title="Topics" ,sort='-x'),
-        color=alt.Color(type="quantitative", aggregate="count")
+        x=alt.X('Year:N', title="Year"),
+        y=alt.Y("top_flatten:N", title="Topics", sort='-x'),
+        color=alt.Color(type="quantitative", aggregate="count",scale=alt.Scale(scheme='lightmulti'))
     ).properties(
-    height=600,
-    width=500
-)
+        height=600,
+        width=500
+    )
     heat_emotions = alt.Chart().mark_rect().encode(
         x='Year:N',
-        y=alt.Y("em_flatten:N",title="Emotions" ,sort='-x'),
-        color=alt.Color(type="quantitative", aggregate="count")
+        y=alt.Y("em_flatten:N", title="Emotions", sort='-x'),
+        color=alt.Color(type="quantitative", aggregate="count",scale=alt.Scale(scheme='lightmulti'))
     ).properties(
-    height=600,
-    width=500
+        height=600,
+        width=500
     )
     chart = alt.hconcat(
         heat_topic,
@@ -159,8 +163,12 @@ def get_heatmap_data():
         ["topic"],
         ["top_flatten"]
 
+    ).resolve_scale(
+        color='independent'
     )
+
     return chart.to_json()
+
 
 @app.get("/data")
 def get_data():

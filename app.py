@@ -19,7 +19,9 @@ db = DB()
 def get_dashboard():
     return render_template('newdash.html')
 
-
+@app.get("/heatmap")
+def get_heatmap():
+    return render_template('heatmap.html')
 @app.get('/get_chart')
 def get_new_dashboard():
     alt.data_transformers.disable_max_rows()
@@ -119,6 +121,46 @@ def get_new_dashboard():
     )
     return chart.to_json()
 
+@app.get("/heatmap_data")
+def get_heatmap_data():
+    alt.data_transformers.disable_max_rows()
+    db_results = db.get_all_data()
+    timestamp = [x["meta"]["timestamp"].year for x in db_results]
+    data_df = pandas.DataFrame.from_records(db_results)
+    data_df.pop("meta")
+    data_df["Year"] = timestamp
+    heat_topic = alt.Chart().mark_rect().encode(
+        x=alt.X('Year:N',title="Year"),
+        y=alt.Y("top_flatten:N", title="Topics" ,sort='-x'),
+        color=alt.Color(type="quantitative", aggregate="count")
+    ).properties(
+    height=600,
+    width=500
+)
+    heat_emotions = alt.Chart().mark_rect().encode(
+        x='Year:N',
+        y=alt.Y("em_flatten:N",title="Emotions" ,sort='-x'),
+        color=alt.Color(type="quantitative", aggregate="count")
+    ).properties(
+    height=600,
+    width=500
+    )
+    chart = alt.hconcat(
+        heat_topic,
+        heat_emotions,
+        data=data_df
+    ).transform_flatten(
+
+        ["emotion"],
+        ["em_flatten"]
+
+    ).transform_flatten(
+
+        ["topic"],
+        ["top_flatten"]
+
+    )
+    return chart.to_json()
 
 @app.get("/data")
 def get_data():

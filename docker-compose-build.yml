@@ -1,0 +1,10 @@
+version: '3'
+services:
+  ftr_visualization:
+    build: .
+    ports:
+      - "80:5000"
+    environment:
+      - "FLASK_APP=/etc/flask_app/app.py"
+    volumes:
+      - "./flask_app:/etc/flask_app"

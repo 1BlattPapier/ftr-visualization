@@ -4,10 +4,10 @@ from lib2to3.pgen2.pgen import DFAState
 
 import pandas as pd
 from flask import Flask, request, render_template, jsonify
-import altair as alt
+import altair.vegalite.v4 as alt
 import pandas
 from sklearn.decomposition import PCA
-from sklearn.manifold import TSNE
+from sklearn.manifold import TSNE, MDS
 
 from db import DB
 
@@ -54,6 +54,8 @@ def get_new_dashboard():
     else:
         tsne = TSNE()
         pca_results = tsne.fit_transform(data_df)
+        #mds = MDS(random_state=0)
+        #pca_results = mds.fit_transform(data_df)
         print("TNSE")
     graph_data = []
     for tsne_result, db_entry in zip(pca_results, db_results):
@@ -68,10 +70,18 @@ def get_new_dashboard():
     brush = alt.selection(type='interval')
     selection = alt.selection_multi(fields=["top_flatten"])
     selconlyem = alt.selection_multi(fields=["em_flatten"])
-    color = alt.condition(selconlyem | selection | brush, if_true=alt.Color('top_flatten:N', legend=None),
-                          if_false=alt.value('lightgray'))
-    color2 = alt.condition(selconlyem | selection, if_true=alt.Color('top_flatten:N', legend=None),
-                           if_false=alt.value('lightgray'))
+
+    if args.get('color_sheme') == "Topic":
+        color = alt.condition(selconlyem | selection | brush, if_true=alt.Color('top_flatten:N', legend=None, scale=alt.Scale(scheme='category20')),
+                              if_false=alt.value('lightgray'))
+        color2 = alt.condition(selconlyem | selection, if_true=alt.Color('top_flatten:N', legend=None, scale=alt.Scale(scheme='category20')),
+                               if_false=alt.value('lightgray'))
+    else:
+        color2 = alt.condition(selconlyem | selection, if_true=alt.Color('em_flatten:N', legend=None, scale=alt.Scale(scheme='category20')),
+                                 if_false=alt.value('lightgray'))
+        color = alt.condition(selconlyem | selection | brush, if_true=alt.Color('em_flatten:N', legend=None, scale=alt.Scale(scheme='category20')),
+                                if_false=alt.value('lightgray'))
+
     chart = alt.Chart().mark_circle().encode(
         x='x:Q',
         y='y:Q',
@@ -136,7 +146,7 @@ def get_heatmap_data():
     heat_topic = alt.Chart().mark_rect().encode(
         x=alt.X('Year:N', title="Year"),
         y=alt.Y("top_flatten:N", title="Topics", sort='-x'),
-        color=alt.Color(type="quantitative", aggregate="count",scale=alt.Scale(scheme='lightmulti'))
+        color=alt.Color(type="quantitative", aggregate="count", scale=alt.Scale(scheme='lightmulti'))
     ).properties(
         height=600,
         width=500
@@ -144,7 +154,7 @@ def get_heatmap_data():
     heat_emotions = alt.Chart().mark_rect().encode(
         x='Year:N',
         y=alt.Y("em_flatten:N", title="Emotions", sort='-x'),
-        color=alt.Color(type="quantitative", aggregate="count",scale=alt.Scale(scheme='lightmulti'))
+        color=alt.Color(type="quantitative", aggregate="count", scale=alt.Scale(scheme='lightmulti'))
     ).properties(
         height=600,
         width=500

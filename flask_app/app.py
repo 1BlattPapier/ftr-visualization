@@ -77,9 +77,9 @@ def get_new_dashboard():
         color2 = alt.condition(selconlyem | selection, if_true=alt.Color('top_flatten:N', legend=None, scale=alt.Scale(scheme='category20')),
                                if_false=alt.value('lightgray'))
     else:
-        color2 = alt.condition(selconlyem | selection, if_true=alt.Color('em_flatten:N', legend=None, scale=alt.Scale(scheme='category20')),
+        color2 = alt.condition(selconlyem | selection, if_true=alt.Color('em_flatten:N', legend=None, scale=alt.Scale(scheme='sinebow')),
                                  if_false=alt.value('lightgray'))
-        color = alt.condition(selconlyem | selection | brush, if_true=alt.Color('em_flatten:N', legend=None, scale=alt.Scale(scheme='category20')),
+        color = alt.condition(selconlyem | selection | brush, if_true=alt.Color('em_flatten:N', legend=None, scale=alt.Scale(scheme='sinebow')),
                                 if_false=alt.value('lightgray'))
 
     chart = alt.Chart().mark_circle().encode(

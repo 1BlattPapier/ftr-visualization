@@ -23,7 +23,7 @@ class DB:
         return list(cursor)
 
     def get_all_data(self):
-        cursor = self.mongo_ftr_s.find({},{"text":1, "emotion":1 , "topic":1 , "meta.timestamp":1, "_id":0})
+        cursor = self.mongo_ftr_s.find({},{ "emotion":1 , "topic":1 , "meta.timestamp":1, "_id":0})
         return list(cursor)
     def filterStatements(self, st_date: datetime, end_date: datetime):
         match = {

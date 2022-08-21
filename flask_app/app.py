@@ -7,7 +7,8 @@ from flask import Flask, request, render_template, jsonify
 import altair.vegalite.v4 as alt
 import pandas
 from sklearn.decomposition import PCA
-from sklearn.manifold import TSNE, MDS
+from sklearn.manifold import MDS, Isomap, SpectralEmbedding, TSNE
+import umap
 
 from db import DB
 
@@ -25,6 +26,110 @@ def get_heatmap():
     return render_template('heatmap.html')
 
 
+def emotions_topics_to_vector(db_results):
+    topics_emotions = {"Society & Culture": 0,
+                       "Science & Mathematics": 1,
+                       "Health": 2,
+                       "Education & Reference": 3,
+                       "Computers & Internet": 4,
+                       "Sports": 5,
+                       "Business & Finance": 6,
+                       "Entertainment & Music": 7,
+                       "Family & Relationships": 8,
+                       "Politics & Government": 9,
+                       "admiration": 10,
+                       "amusement": 11,
+                       "anger": 12,
+                       "annoyance": 13,
+                       "approval": 14,
+                       "caring": 15,
+                       "confusion": 16,
+                       "curiosity": 17,
+                       "desire": 18,
+                       "disappointment": 19,
+                       "disapproval": 20,
+                       "disgust": 21,
+                       "embarrassment": 22,
+                       "excitement": 23,
+                       "fear": 24,
+                       "gratitude": 25,
+                       "grief": 26,
+                       "joy": 27,
+                       "love": 28,
+                       "nervousness": 29,
+                       "optimism": 30,
+                       "pride": 31,
+                       "realization": 32,
+                       "relief": 33,
+                       "remorse": 34,
+                       "sadness": 35,
+                       "surprise": 36,
+                       "neutral": 37
+                       }
+    data = []
+    for result in db_results:
+        out = [0] * 38
+        for k, v in (dict(zip(result['topic'], result['topic_certainty'])) | dict(
+                zip(result['emotion'], result['emotion_certainty']))).items():
+            out[topics_emotions[k]] = v
+        data.append(out)
+    return data
+
+
+@app.get('/barchart')
+def barchart():
+    return render_template("barcharts.html")
+
+
+@app.get('/get_bar_chart')
+def get_bar_chart():
+    alt.data_transformers.disable_max_rows()
+    db_results = db.get_all_data()
+    timestamp = [x["meta"]["timestamp"].year for x in db_results]
+    data_df = pandas.DataFrame.from_records(db_results)
+    data_df.pop("meta")
+    data_df["Year"] = timestamp
+
+    year_slider = alt.binding_range(min=2001, max=2022, step=1)
+    slider_selection = alt.selection_single(bind=year_slider, fields=['Year'], name="Year")
+
+    chart = alt.Chart(data_df).mark_bar().encode(
+        y=alt.Y("top_flatten:N", sort='-x'),
+        x=alt.X(type="quantitative", aggregate="count"),
+        color = alt.Color('top_flatten:N', legend=None, scale=alt.Scale(scheme='category20'))
+    ).add_selection(
+        slider_selection
+    ).transform_filter(
+        slider_selection
+    ).properties(title="Slider Filtering")
+    chart_emotion = alt.Chart(data_df).mark_bar().encode(
+        y=alt.Y("em_flatten:N", sort='-x'),
+        x=alt.X(type="quantitative", aggregate="count"),
+        color = alt.Color('top_flatten:N', legend=None, scale=alt.Scale(scheme='category20'))
+    ).add_selection(
+        slider_selection
+    ).transform_filter(
+        slider_selection
+    ).properties(title="Slider Filtering")
+
+    chart = alt.hconcat(
+        chart,
+        chart_emotion,
+        data=data_df
+    ).transform_flatten(
+
+        ["emotion"],
+        ["em_flatten"]
+
+    ).transform_flatten(
+
+        ["topic"],
+        ["top_flatten"]
+
+    )
+    return chart.to_json()
+
+
 @app.get('/get_chart')
 def get_new_dashboard():
     alt.data_transformers.disable_max_rows()
@@ -40,6 +145,7 @@ def get_new_dashboard():
         emotion_dict = {k: v for k, v in zip(result['emotion'], result['emotion_certainty'])}
         topic_dict.update(emotion_dict)
         data.append(topic_dict)
+
     data_df = pandas.DataFrame.from_records(data)
     data_df = data_df.sample(frac=1)
     if len(data_df) > 10000:
@@ -52,10 +158,10 @@ def get_new_dashboard():
         pca_results = pca.fit_transform(data_df)
         print("PCA")
     else:
-        tsne = TSNE()
+        tsne = TSNE(n_jobs=10, learning_rate="auto", init="pca")
         pca_results = tsne.fit_transform(data_df)
-        #mds = MDS(random_state=0)
-        #pca_results = mds.fit_transform(data_df)
+        # pca_results = umap.UMAP(n_neighbors=15,
+        #              min_dist=0.3,metric='correlation').fit_transform(data_df)
         print("TNSE")
     graph_data = []
     for tsne_result, db_entry in zip(pca_results, db_results):
@@ -72,15 +178,19 @@ def get_new_dashboard():
     selconlyem = alt.selection_multi(fields=["em_flatten"])
 
     if args.get('color_sheme') == "Topic":
-        color = alt.condition(selconlyem | selection | brush, if_true=alt.Color('top_flatten:N', legend=None, scale=alt.Scale(scheme='category20')),
+        color = alt.condition(selconlyem | selection | brush,
+                              if_true=alt.Color('top_flatten:N', legend=None, scale=alt.Scale(scheme='category20')),
                               if_false=alt.value('lightgray'))
-        color2 = alt.condition(selconlyem | selection, if_true=alt.Color('top_flatten:N', legend=None, scale=alt.Scale(scheme='category20')),
+        color2 = alt.condition(selconlyem | selection,
+                               if_true=alt.Color('top_flatten:N', legend=None, scale=alt.Scale(scheme='category20')),
                                if_false=alt.value('lightgray'))
     else:
-        color2 = alt.condition(selconlyem | selection, if_true=alt.Color('em_flatten:N', legend=None, scale=alt.Scale(scheme='sinebow')),
-                                 if_false=alt.value('lightgray'))
-        color = alt.condition(selconlyem | selection | brush, if_true=alt.Color('em_flatten:N', legend=None, scale=alt.Scale(scheme='sinebow')),
-                                if_false=alt.value('lightgray'))
+        color2 = alt.condition(selconlyem | selection,
+                               if_true=alt.Color('em_flatten:N', legend=None, scale=alt.Scale(scheme='sinebow')),
+                               if_false=alt.value('lightgray'))
+        color = alt.condition(selconlyem | selection | brush,
+                              if_true=alt.Color('em_flatten:N', legend=None, scale=alt.Scale(scheme='sinebow')),
+                              if_false=alt.value('lightgray'))
 
     chart = alt.Chart().mark_circle().encode(
         x='x:Q',

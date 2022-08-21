@@ -94,23 +94,29 @@ def get_bar_chart():
     slider_selection = alt.selection_single(bind=year_slider, fields=['Year'], name="Year")
 
     chart = alt.Chart(data_df).mark_bar().encode(
-        y=alt.Y("top_flatten:N", sort='-x'),
+        y=alt.Y("top_flatten:N", sort='-x', title="Topics"),
         x=alt.X(type="quantitative", aggregate="count"),
         color = alt.Color('top_flatten:N', legend=None, scale=alt.Scale(scheme='category20'))
     ).add_selection(
         slider_selection
     ).transform_filter(
         slider_selection
-    ).properties(title="Slider Filtering")
+    ).properties(title="Topics over years").properties(
+        height=600,
+        width=500
+    )
     chart_emotion = alt.Chart(data_df).mark_bar().encode(
-        y=alt.Y("em_flatten:N", sort='-x'),
+        y=alt.Y("em_flatten:N", sort='-x',title="Emotions"),
         x=alt.X(type="quantitative", aggregate="count"),
         color = alt.Color('top_flatten:N', legend=None, scale=alt.Scale(scheme='category20'))
     ).add_selection(
         slider_selection
     ).transform_filter(
         slider_selection
-    ).properties(title="Slider Filtering")
+    ).properties(title="Emotions over years").properties(
+        height=600,
+        width=500
+    )
 
     chart = alt.hconcat(
         chart,
@@ -126,7 +132,10 @@ def get_bar_chart():
         ["topic"],
         ["top_flatten"]
 
+    ).resolve_scale(
+        color='independent'
     )
+
     return chart.to_json()
 
 

@@ -20,10 +20,17 @@ db = DB()
 def get_dashboard():
     return render_template('newdash.html')
 
+@app.get("/qaf-visualization")
+def get_qrt_vis():
+    return render_template('qaf_vis.html')
 
 @app.get("/heatmap")
 def get_heatmap():
     return render_template('heatmap.html')
+
+@app.get("/qaf_heatmap")
+def get_qaf_heatmap():
+    return render_template('qaf_heatmap.html')
 
 
 def emotions_topics_to_vector(db_results):
@@ -80,11 +87,15 @@ def emotions_topics_to_vector(db_results):
 def barchart():
     return render_template("barcharts.html")
 
+@app.get('/qaf_barchart')
+def qaf_barchart():
+    return render_template("qaf_barcharts.html")
 
 @app.get('/get_bar_chart')
 def get_bar_chart():
     alt.data_transformers.disable_max_rows()
-    db_results = db.get_all_data()
+    args = request.args
+    db_results = db.get_all_data(ftr=args.get("mode") == "s")
     timestamp = [x["meta"]["timestamp"].year for x in db_results]
     data_df = pandas.DataFrame.from_records(db_results)
     data_df.pop("meta")
@@ -145,8 +156,9 @@ def get_new_dashboard():
     args = request.args
     db_results = db.filterStatements(
         datetime.datetime(int(args.get('st_year')), 12, 1),
-        datetime.datetime(int(args.get('end_year')), 12, 1)
+        datetime.datetime(int(args.get('end_year')), 12, 1), args.get("mode") == "s"
     )
+
 
     data = []
     for result in db_results:
@@ -257,7 +269,8 @@ def get_new_dashboard():
 @app.get("/heatmap_data")
 def get_heatmap_data():
     alt.data_transformers.disable_max_rows()
-    db_results = db.get_all_data()
+    args = request.args
+    db_results = db.get_all_data(ftr=args.get("mode") == "s")
     timestamp = [x["meta"]["timestamp"].year for x in db_results]
     data_df = pandas.DataFrame.from_records(db_results)
     data_df.pop("meta")

@@ -35,15 +35,15 @@
         <div class="navbar-nav">
             <a class="nav-item nav-link" href="/dashboard">Ftr visualisation </a>
             <a class="nav-item nav-link" href="/heatmap">Heatmap</a>
-            <a class="nav-item nav-link active" href="/barchart">Barchart<span class="sr-only">(current)</span></a>
+            <a class="nav-item nav-link" href="/barchart">Barchart</a>
             <li class="nav-item dropdown">
-      <a class="nav-link dropdown-toggle " href="#" id="navbardrop" data-toggle="dropdown">
+      <a class="nav-link dropdown-toggle active " href="#" id="navbardrop" data-toggle="dropdown">
         Questions about the future
       </a>
-      <div class="dropdown-menu">
+      <div class="dropdown-menu ">
         <a class="dropdown-item" href="/qaf-visualization">QAF Visualization</a>
         <a class="dropdown-item" href="/qaf_heatmap">QAF Heatmap</a>
-        <a class="dropdown-item" href="/qaf_barchart">QAF Barchart</a>
+        <a class="dropdown-item active" href="/qaf_barchart">QAF Barchart<span class="sr-only">(current)</span></a>
       </div>
     </li>
         </div>
@@ -74,7 +74,7 @@
         });
     }
 
-    parse("/get_bar_chart&mode=s", "chart");
+    parse("/get_bar_chart?mode=q", "chart");
 
 </script>
 </body>

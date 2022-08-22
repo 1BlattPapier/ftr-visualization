@@ -1,7 +1,7 @@
 import datetime
 import json
 from lib2to3.pgen2.pgen import DFAState
-
+from urllib import parse
 import pandas as pd
 from flask import Flask, request, render_template, jsonify
 import altair.vegalite.v4 as alt
@@ -16,21 +16,46 @@ app = Flask(__name__)
 db = DB()
 
 
-@app.get('/dashboard')
+@app.get('/visualization')
 def get_dashboard():
-    return render_template('newdash.html')
+    return render_template('mother_dashboard.html', dashboard=True,
+                           url="/get_chart?st_year=2012&end_year=2013&algo=PCA&color_sheme=Topic&mode=s",
+                           reloaddata=True, year_color_control=True)
+
 
 @app.get("/qaf-visualization")
 def get_qrt_vis():
-    return render_template('qaf_vis.html')
+    return render_template('mother_dashboard.html', qaf_dashboard=True,
+                           url="/get_chart?st_year=2012&end_year=2013&algo=PCA&color_sheme=Topic&mode=q",
+                           reloaddata=True, year_color_control=True)
+
 
 @app.get("/heatmap")
 def get_heatmap():
-    return render_template('heatmap.html')
+    return render_template('mother_dashboard.html', heatmap=True,
+                           url="/heatmap_data?mode=s"
+                           )
+
 
 @app.get("/qaf_heatmap")
 def get_qaf_heatmap():
-    return render_template('qaf_heatmap.html')
+    return render_template('mother_dashboard.html', qaf_heatmap=True,
+                           url="/heatmap_data?mode=q"
+                           )
+
+
+@app.get('/barchart')
+def barchart():
+    return render_template('mother_dashboard.html', barchart=True,
+                           url="/get_bar_chart?mode=s"
+                           )
+
+
+@app.get('/qaf_barchart')
+def qaf_barchart():
+    return render_template('mother_dashboard.html', qaf_barchart=True,
+                           url="/get_bar_chart?mode=q"
+                           )
 
 
 def emotions_topics_to_vector(db_results):
@@ -83,14 +108,6 @@ def emotions_topics_to_vector(db_results):
     return data
 
 
-@app.get('/barchart')
-def barchart():
-    return render_template("barcharts.html")
-
-@app.get('/qaf_barchart')
-def qaf_barchart():
-    return render_template("qaf_barcharts.html")
-
 @app.get('/get_bar_chart')
 def get_bar_chart():
     alt.data_transformers.disable_max_rows()
@@ -107,7 +124,7 @@ def get_bar_chart():
     chart = alt.Chart(data_df).mark_bar().encode(
         y=alt.Y("top_flatten:N", sort='-x', title="Topics"),
         x=alt.X(type="quantitative", aggregate="count"),
-        color = alt.Color('top_flatten:N', legend=None, scale=alt.Scale(scheme='category20'))
+        color=alt.Color('top_flatten:N', legend=None, scale=alt.Scale(scheme='category20'))
     ).add_selection(
         slider_selection
     ).transform_filter(
@@ -117,9 +134,9 @@ def get_bar_chart():
         width=500
     )
     chart_emotion = alt.Chart(data_df).mark_bar().encode(
-        y=alt.Y("em_flatten:N", sort='-x',title="Emotions"),
+        y=alt.Y("em_flatten:N", sort='-x', title="Emotions"),
         x=alt.X(type="quantitative", aggregate="count"),
-        color = alt.Color('top_flatten:N', legend=None, scale=alt.Scale(scheme='category20'))
+        color=alt.Color('top_flatten:N', legend=None, scale=alt.Scale(scheme='category20'))
     ).add_selection(
         slider_selection
     ).transform_filter(
@@ -158,7 +175,6 @@ def get_new_dashboard():
         datetime.datetime(int(args.get('st_year')), 12, 1),
         datetime.datetime(int(args.get('end_year')), 12, 1), args.get("mode") == "s"
     )
-
 
     data = []
     for result in db_results:
@@ -312,36 +328,4 @@ def get_heatmap_data():
     return chart.to_json()
 
 
-@app.get("/data")
-def get_data():
-    args = request.args
 
-    db_results = db.filterStatements(
-        datetime.datetime(int(args.get('st_year')), 12, 1),
-        datetime.datetime(int(args.get('end_year')), 12, 1)
-    )
-
-    data = []
-    for result in db_results:
-        topic_dict = {k: v for k, v in zip(result['topic'], result['topic_certainty'])}
-        emotion_dict = {k: v for k, v in zip(result['emotion'], result['emotion_certainty'])}
-        topic_dict.update(emotion_dict)
-        data.append(topic_dict)
-    data_df = pandas.DataFrame.from_records(data)
-    data_df = data_df.fillna(0)
-
-    # Use either tsne or pca here
-    pca = PCA()
-    pca_results = pca.fit_transform(data_df)
-
-    graph_data = []
-    for tsne_result, db_entry in zip(pca_results, db_results):
-        graph_data.append({
-            'text': db_entry['text'],
-            'topics': db_entry['topic'],
-            'emotions': db_entry['emotion'],
-            'x': str(tsne_result[0]),
-            'y': str(tsne_result[1]),
-        })
-
-    return json.dumps(graph_data)

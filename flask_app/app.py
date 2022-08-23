@@ -19,42 +19,42 @@ db = DB()
 @app.get('/visualization')
 def get_dashboard():
     return render_template('mother_dashboard.html', dashboard=True,
-                           url="/get_chart?st_year=2012&end_year=2013&algo=PCA&color_sheme=Topic&mode=s",
+                           url="/get_chart?st_year=2012&end_year=2013&algo=PCA&color_sheme=Topic&mode=s&datasource=trb",
                            reloaddata=True, year_color_control=True)
 
 
 @app.get("/qaf-visualization")
 def get_qrt_vis():
     return render_template('mother_dashboard.html', qaf_dashboard=True,
-                           url="/get_chart?st_year=2012&end_year=2013&algo=PCA&color_sheme=Topic&mode=q",
+                           url="/get_chart?st_year=2012&end_year=2013&algo=PCA&color_sheme=Topic&mode=q&datasource=trb",
                            reloaddata=True, year_color_control=True)
 
 
 @app.get("/heatmap")
 def get_heatmap():
     return render_template('mother_dashboard.html', heatmap=True,
-                           url="/heatmap_data?mode=s"
+                           url="/heatmap_data?mode=s&datasource=trb"
                            )
 
 
 @app.get("/qaf_heatmap")
 def get_qaf_heatmap():
     return render_template('mother_dashboard.html', qaf_heatmap=True,
-                           url="/heatmap_data?mode=q"
+                           url="/heatmap_data?mode=q&datasource=trb"
                            )
 
 
 @app.get('/barchart')
 def barchart():
     return render_template('mother_dashboard.html', barchart=True,
-                           url="/get_bar_chart?mode=s"
+                           url="/get_bar_chart?mode=s&datasource=trb"
                            )
 
 
 @app.get('/qaf_barchart')
 def qaf_barchart():
     return render_template('mother_dashboard.html', qaf_barchart=True,
-                           url="/get_bar_chart?mode=q"
+                           url="/get_bar_chart?mode=q&datasource=trb"
                            )
 
 
@@ -112,7 +112,7 @@ def emotions_topics_to_vector(db_results):
 def get_bar_chart():
     alt.data_transformers.disable_max_rows()
     args = request.args
-    db_results = db.get_all_data(ftr=args.get("mode") == "s")
+    db_results = db.get_all_data(ftr=args.get("mode") == "s",datasource=args.get("datasource"))
     timestamp = [x["meta"]["timestamp"].year for x in db_results]
     data_df = pandas.DataFrame.from_records(db_results)
     data_df.pop("meta")
@@ -173,7 +173,7 @@ def get_new_dashboard():
     args = request.args
     db_results = db.filterStatements(
         datetime.datetime(int(args.get('st_year')), 12, 1),
-        datetime.datetime(int(args.get('end_year')), 12, 1), args.get("mode") == "s"
+        datetime.datetime(int(args.get('end_year')), 12, 1), args.get("mode") == "s", datasource=args.get("datasource")
     )
 
     data = []
@@ -206,6 +206,7 @@ def get_new_dashboard():
             'text': db_entry['text'],
             'topics': db_entry['topic'],
             'emotions': db_entry['emotion'],
+            'source': db_entry["meta"]["source"],
             'x': str(tsne_result[0]),
             'y': str(tsne_result[1]),
         })
@@ -233,7 +234,7 @@ def get_new_dashboard():
         x='x:Q',
         y='y:Q',
         color=color,
-        tooltip=['text:N', "topics:N", "emotions:N"],
+        tooltip=['text:N', "topics:N", "emotions:N", "source:N"],
 
     ).properties(
         width=800,
@@ -286,7 +287,7 @@ def get_new_dashboard():
 def get_heatmap_data():
     alt.data_transformers.disable_max_rows()
     args = request.args
-    db_results = db.get_all_data(ftr=args.get("mode") == "s")
+    db_results = db.get_all_data(ftr=args.get("mode") == "s",datasource=args.get("datasource"))
     timestamp = [x["meta"]["timestamp"].year for x in db_results]
     data_df = pandas.DataFrame.from_records(db_results)
     data_df.pop("meta")

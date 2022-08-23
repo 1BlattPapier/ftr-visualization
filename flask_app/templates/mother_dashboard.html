@@ -11,9 +11,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
           integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 
-<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.slim.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.1/dist/js/bootstrap.bundle.min.js"></script>
     <script type="text/javascript" src="https://d3js.org/d3-selection.v1.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm//vega@5"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm//vega-lite@4.17.0"></script>
@@ -26,82 +26,109 @@
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-  <a class="navbar-brand" href="#">Navbar</a>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-  <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-    <div class="navbar-nav">
-      <a class="nav-item nav-link {% if dashboard %} {{ "active" }} {% endif %} " href="/visualization">Ftr visualisation{% if dashboard %} <span class="sr-only">(current)</span> {% endif %}</a>
-      <a class="nav-item nav-link {% if heatmap %} {{ "active" }} {% endif %}" href="/heatmap">Heatmap{% if heatmap %} <span class="sr-only">(current)</span> {% endif %}</a>
-        <a class="nav-item nav-link {% if barchart %} {{ "active" }} {% endif %} " href="/barchart">Barchart{% if barchart %} <span class="sr-only">(current)</span> {% endif %}</a>
-        <li class="nav-item dropdown">
-      <a class="nav-link dropdown-toggle {% if qaf_dashboard or qaf_heatmap or qaf_barchart %} {{ "active" }} {% endif %}" href="#" id="navbardrop" data-toggle="dropdown">
-        Questions about the future
-      </a>
-      <div class="dropdown-menu">
-        <a class="dropdown-item" href="/qaf-visualization {% if qaf_dashboard %} {{ "active" }} {% endif %}">QAF Visualization{% if qaf_dashboard %} <span class="sr-only">(current)</span> {% endif %}</a>
-        <a class="dropdown-item" href="/qaf_heatmap {% if qaf_heatmap %} {{ "active" }} {% endif %}" >QAF Heatmap{% if qaf_heatmap %} <span class="sr-only">(current)</span> {% endif %}</a>
-        <a class="dropdown-item" href="/qaf_barchart {% if qaf_barchart %} {{ "active" }} {% endif %}">QAF Barchart{% if qaf_barchart %} <span class="sr-only">(current)</span> {% endif %}</a>
-      </div>
-    </li>
+    <a class="navbar-brand" href="#">Navbar</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+            aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+        <div class="navbar-nav">
+            <a class="nav-item nav-link {% if dashboard %} {{ "active" }} {% endif %} " href="/visualization">Ftr
+                visualisation{% if dashboard %} <span class="sr-only">(current)</span> {% endif %}</a>
+            <a class="nav-item nav-link {% if heatmap %} {{ "active" }} {% endif %}" href="/heatmap">Heatmap
+                {% if heatmap %} <span class="sr-only">(current)</span> {% endif %}</a>
+            <a class="nav-item nav-link {% if barchart %} {{ "active" }} {% endif %} " href="/barchart">Barchart
+                {% if barchart %} <span class="sr-only">(current)</span> {% endif %}</a>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle {% if qaf_dashboard or qaf_heatmap or qaf_barchart %} {{ "active" }} {% endif %}"
+                   href="#" id="navbardrop" data-toggle="dropdown">
+                    Questions about the future
+                </a>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item"
+                       href="/qaf-visualization {% if qaf_dashboard %} {{ "active" }} {% endif %}">QAF Visualization
+                        {% if qaf_dashboard %} <span class="sr-only">(current)</span> {% endif %}</a>
+                    <a class="dropdown-item" href="/qaf_heatmap {% if qaf_heatmap %} {{ "active" }} {% endif %}">QAF
+                        Heatmap{% if qaf_heatmap %} <span class="sr-only">(current)</span> {% endif %}</a>
+                    <a class="dropdown-item" href="/qaf_barchart {% if qaf_barchart %} {{ "active" }} {% endif %}">QAF
+                        Barchart{% if qaf_barchart %} <span class="sr-only">(current)</span> {% endif %}</a>
+                </div>
+            </li>
+        </div>
     </div>
-  </div>
 </nav>
 
-{% if year_color_control %}
-<div class="container content-center pt-3 ">
-    <div class="row">
-        <div class="col-md">
-            <b>2001</b> <input id="ex2" type="text" class="span2" value="" data-slider-min="2001" data-slider-max="2022"
-                               data-slider-step="1" data-slider-value="[2012,2013]"/> <b>2022</b>
-            <span id="ex6CurrentSliderValLabel">Years: <span id="ex6SliderVal">2012,2013</span></span>
-        </div>
-        <div class="col-sm-  content-center">
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="flexRadioDefaults" id="PCA_select" checked>
-                <label class="form-check-label" for="flexRadioDefaults1">
-                    PCA
-                </label>
+
+    <div class="container content-center pt-3 ">
+
+        <div class="row">
+            {% if year_color_control %}
+            <div class="col-md">
+                <b>2001</b> <input id="ex2" type="text" class="span2" value="" data-slider-min="2001"
+                                   data-slider-max="2022"
+                                   data-slider-step="1" data-slider-value="[2012,2013]"/> <b>2022</b>
+                <span id="ex6CurrentSliderValLabel">Years: <span id="ex6SliderVal">2012,2013</span></span>
             </div>
-            <div class="form-check">
-                <input class="form-check-input" type="radio" name="flexRadioDefaults" id="TSNE_select">
-                <label class="form-check-label" for="flexRadioDefaults2">
-                    TSNE
-                </label>
+            <div class="col-sm-  content-center">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="flexRadioDefaults" id="PCA_select" checked>
+                    <label class="form-check-label" for="flexRadioDefaults1">
+                        PCA
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="flexRadioDefaults" id="TSNE_select">
+                    <label class="form-check-label" for="flexRadioDefaults2">
+                        TSNE
+                    </label>
+                </div>
+            </div>
+
+
+            <div class="col-sm  content-center ">
+
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="flexRadioDefault" id="topic_color" checked>
+                    <label class="form-check-label" for="flexRadioDefault1">
+                        Topic
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="flexRadioDefault" id="emotion_color">
+                    <label class="form-check-label" for="flexRadioDefault2">
+                        Emotion
+                    </label>
+
+                </div>
+            </div>
+                {% endif %}
+            <div class="col-sm content-center">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="redditCheckbox" value="Reddit" checked>
+                    <label class="form-check-label" for="redditCheckbox">Reddit</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="TwitterCheckbox" value="Twitter" checked>
+                    <label class="form-check-label" for="TwitterCheckbox">Twitter</label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" id="BlogspotCheckbox" value="Blogspot" checked>
+                    <label class="form-check-label" for="BlogspotCheckbox">Blogspot</label>
+                </div>
+            </div>
+
+            <div class="col-sm">
+                <input onclick="reloadData()" type="button" value="Show Data">
             </div>
         </div>
-
-
-
-    <div class="col-sm  content-center ">
-
-        <div class="form-check">
-            <input class="form-check-input" type="radio" name="flexRadioDefault" id="topic_color" checked>
-            <label class="form-check-label" for="flexRadioDefault1">
-                Topic
-            </label>
-        </div>
-        <div class="form-check">
-            <input class="form-check-input" type="radio" name="flexRadioDefault" id="emotion_color">
-            <label class="form-check-label" for="flexRadioDefault2">
-                Emotion
-            </label>
-
     </div>
-        </div>
-    <div class="col-sm">
-        <input onclick="reloadData()" type="button" value="Show Data">
-    </div>
-</div>
-</div>
-{% endif %}
+
 
 
 
 <div class="container-fluid pt-3 text-center">
 
-        <div id="chart"></div>
+    <div id="chart"></div>
 
 
     <!-- Placeholder for the tooltip -->
@@ -110,10 +137,10 @@
 
 <script>
     {% if year_color_control %}
-    var slider = new Slider('#ex2', {});
-    slider.on("slide", function (sliderValue) {
-        document.getElementById("ex6SliderVal").textContent = sliderValue;
-    });
+        var slider = new Slider('#ex2', {});
+        slider.on("slide", function (sliderValue) {
+            document.getElementById("ex6SliderVal").textContent = sliderValue;
+        });
     {% endif %}
     function parse(url, div) {
         var opt = {
@@ -130,40 +157,71 @@
 
 
     //"/get_chart?st_year=2012&end_year=2013&algo=PCA&color_sheme=Topic&mode=s"
-    parse( "{{ url|safe }}"  , "chart");
+    parse("{{ url|safe }}", "chart");
 
 
 
-    {% if reloaddata %}
 
-    function reloadData() {
 
-        var mode = document.getElementById("PCA_select")
+        function reloadData() {
+            {% if reloaddata %}
+            var mode = document.getElementById("PCA_select")
 
-        var dimreduce = "&algo="
-        if (mode.checked) {
-            dimreduce += "PCA";
-        } else {
+            var dimreduce = "&algo="
+            if (mode.checked) {
+                dimreduce += "PCA";
+            } else {
 
-            dimreduce += "TSNE";
+                dimreduce += "TSNE";
+            }
+            var colotshema = "&color_sheme="
+            if (document.getElementById("topic_color").checked) {
+                colotshema += "Topic"
+            } else {
+                colotshema += "Emotion"
+            }
+            var start_year = slider.getValue();
+            {%  endif %}
+            var data = "&datasource="
+            if (document.getElementById("TwitterCheckbox").checked){
+                data += "t"
+            }else {
+                data += "n"
+            }
+            if (document.getElementById("redditCheckbox").checked){
+                data += "r"
+            }else {
+                data += "n"
+            }
+            if (document.getElementById("BlogspotCheckbox").checked){
+                data += "b"
+            }else {
+                data += "n"
+            }
+            if (data ==="&datasource=nnn"){
+                data = "&datasource=trb"
+            }
+
+
+
+
+            {% if dashboard %}
+                var url = "/get_chart?st_year=" + start_year[0] + "&end_year=" + start_year[1] + dimreduce + colotshema + "&mode=s"+data;
+            {% elif qaf_dashboard %}
+                var url = "/get_chart?st_year=" + start_year[0] + "&end_year=" + start_year[1] + dimreduce + colotshema + "&mode=q"+data;
+            {%  elif heatmap %}
+                 var url = "/heatmap_data?mode=s"+data;
+             {%  elif qaf_heatmap %}
+                var url = "/heatmap_data?mode=q"+data;
+            {%  elif barchart %}
+                var url ="/get_bar_chart?mode=s"+data;
+            {%  elif qaf_barchart %}
+                var url ="/get_bar_chart?mode=q"+data;
+            {%  endif %}
+            parse(url, "chart");
         }
-        var colotshema = "&color_sheme="
-        if (document.getElementById("topic_color").checked) {
-            colotshema += "Topic"
-        } else {
-            colotshema += "Emotion"
-        }
 
-        var start_year = slider.getValue();
-        {% if dashboard %}
-        var url = "/get_chart?st_year=" + start_year[0] + "&end_year=" + start_year[1] + dimreduce + colotshema+"&mode=s";
-        {% elif qaf_dashboard %}
-        var url = "/get_chart?st_year=" + start_year[0] + "&end_year=" + start_year[1] + dimreduce + colotshema+"&mode=q";
-        {%  endif %}
-        parse(url, "chart");
-    }
 
-    {%  endif %}
 
 </script>
 </body>

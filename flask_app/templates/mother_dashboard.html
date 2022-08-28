@@ -26,7 +26,7 @@
 </head>
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <a class="navbar-brand" href="#">Navbar</a>
+    <a class="navbar-brand" href="/">ftr.sozial</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
             aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -58,51 +58,86 @@
     </div>
 </nav>
 
-
+{% if startpage %}
+    <div class="container content-center pt-3 ">
+    <h1>Welcome to ftr.sozial</h1>
+        <div class="row">
+            <div class="col-6">
+                This is the companion website for our research report: "Gathering and visualizing sentences about the future". <br>
+                We wanted to obtain future referencing statements from the internet. To accomplish that we have chosen
+                three sources: Blogspot, Twitter and Reddit <br>
+                Sentences where taken from these sources and classified in statement about the future / question about
+                the future. Then they are the clustered into topics and emotions. <br>
+                We want to thank <a href="https://files.pushshift.io/reddit/">pushshift.io</a> for the Reddit data, the
+                <a href="https://archive.org/">archive.org</a> for the Twitter and Blogspot data and
+                the <a href="https://webis.de/">Webis Group </a> for providing there cluster for the purpose of the Big
+                Data and Language Technologies Seminar.
+            </div>
+            <div class="col-6">
+                <div class="row">
+                    <div class="col-6">
+                        We collected <mark><strong>{{ totlacount }}</strong></mark> Future referencing statements and
+                        <mark><strong>{{ totlacountq }}</strong></mark> Future referencing questions.
+                    </div>
+                    <div class="w-100"></div>
+                    <div class="col-6">
+                        Of the Future referencing statements {{ twittercount }} are Twitter, {{ blogspotcount }} are
+                        Blogspot and {{ redditcount }} are Reddit. <br>
+                        Of the Future referencing questions {{ twittercountq }} are Twitter, {{ blogspotcountq }} are
+                        Blogspot and {{ redditcountq }} are Reddit. <br>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% else %}
     <div class="container content-center pt-3 ">
 
         <div class="row">
             {% if year_color_control %}
-            <div class="col-md">
-                <b>2001</b> <input id="ex2" type="text" class="span2" value="" data-slider-min="2001"
-                                   data-slider-max="2022"
-                                   data-slider-step="1" data-slider-value="[2012,2013]"/> <b>2022</b>
-                <span id="ex6CurrentSliderValLabel">Years: <span id="ex6SliderVal">2012,2013</span></span>
-            </div>
-            <div class="col-sm-  content-center">
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="flexRadioDefaults" id="PCA_select" checked>
-                    <label class="form-check-label" for="flexRadioDefaults1">
-                        PCA
-                    </label>
+                <div class="col-md">
+                    <h6>Year range slection:</h6>
+                    <input id="ex2" type="text" class="span2" value="" data-slider-min="2001"
+                                       data-slider-max="2022"
+                                       data-slider-step="1" data-slider-value="[2012,2013]"/>
+                    <span id="ex6CurrentSliderValLabel">Years: <span id="ex6SliderVal">2012,2013</span></span>
                 </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="flexRadioDefaults" id="TSNE_select">
-                    <label class="form-check-label" for="flexRadioDefaults2">
-                        TSNE
-                    </label>
+                <div class="col-sm-  content-center">
+                    <h6>Dimension reduction algorithm:</h6>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="flexRadioDefaults" id="PCA_select" checked>
+                        <label class="form-check-label" for="flexRadioDefaults1">
+                            PCA
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="flexRadioDefaults" id="TSNE_select">
+                        <label class="form-check-label" for="flexRadioDefaults2">
+                            TSNE
+                        </label>
+                    </div>
                 </div>
-            </div>
 
 
-            <div class="col-sm  content-center ">
+                <div class="col-sm  content-center ">
+                    <h6>Color schema:</h6>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="flexRadioDefault" id="topic_color" checked>
+                        <label class="form-check-label" for="flexRadioDefault1">
+                            Topic
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="flexRadioDefault" id="emotion_color">
+                        <label class="form-check-label" for="flexRadioDefault2">
+                            Emotion
+                        </label>
 
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="flexRadioDefault" id="topic_color" checked>
-                    <label class="form-check-label" for="flexRadioDefault1">
-                        Topic
-                    </label>
+                    </div>
                 </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="flexRadioDefault" id="emotion_color">
-                    <label class="form-check-label" for="flexRadioDefault2">
-                        Emotion
-                    </label>
-
-                </div>
-            </div>
-                {% endif %}
+            {% endif %}
             <div class="col-sm content-center">
+                <h6>Input sources:</h6>
                 <div class="form-check form-check-inline">
                     <input class="form-check-input" type="checkbox" id="redditCheckbox" value="Reddit" checked>
                     <label class="form-check-label" for="redditCheckbox">Reddit</label>
@@ -126,79 +161,77 @@
 
 
 
-<div class="container-fluid pt-3 text-center">
+    <div class="container-fluid pt-3 text-center">
 
-    <div id="chart"></div>
-
-
-    <!-- Placeholder for the tooltip -->
-
-</div>
-
-<script>
-    {% if year_color_control %}
-        var slider = new Slider('#ex2', {});
-        slider.on("slide", function (sliderValue) {
-            document.getElementById("ex6SliderVal").textContent = sliderValue;
-        });
-    {% endif %}
-    function parse(url, div) {
-        var opt = {
-            mode: "vega-lite",
-            renderer: "svg",
-            actions: {export: true, source: true, editor: false}
-        };
-
-        vegaEmbed("#" + div, url, opt, function (error, result) {
-            // result.view is the Vega View, url is the original Vega-Lite specification
-            vegaTooltip.vegaLite(result.view, url);
-        });
-    }
+        <div id="chart"></div>
 
 
-    //"/get_chart?st_year=2012&end_year=2013&algo=PCA&color_sheme=Topic&mode=s"
-    parse("{{ url|safe }}", "chart");
+        <!-- Placeholder for the tooltip -->
+
+    </div>
 
 
+    <script>
+        {% if year_color_control %}
+            var slider = new Slider('#ex2', {});
+            slider.on("slide", function (sliderValue) {
+                document.getElementById("ex6SliderVal").textContent = sliderValue;
+            });
+        {% endif %}
+        function parse(url, div) {
+            var opt = {
+                mode: "vega-lite",
+                renderer: "svg",
+                actions: {export: true, source: true, editor: false}
+            };
 
+            vegaEmbed("#" + div, url, opt, function (error, result) {
+                // result.view is the Vega View, url is the original Vega-Lite specification
+                vegaTooltip.vegaLite(result.view, url);
+            });
+        }
+
+
+        //"/get_chart?st_year=2012&end_year=2013&algo=PCA&color_sheme=Topic&mode=s"
+        parse("{{ url|safe }}", "chart");
 
 
         function reloadData() {
             {% if reloaddata %}
-            var mode = document.getElementById("PCA_select")
+                var mode = document.getElementById("PCA_select")
 
-            var dimreduce = "&algo="
-            if (mode.checked) {
-                dimreduce += "PCA";
-            } else {
+                var dimreduce = "&algo="
+                if (mode.checked) {
+                    dimreduce += "PCA";
+                } else {
 
-                dimreduce += "TSNE";
-            }
-            var colotshema = "&color_sheme="
-            if (document.getElementById("topic_color").checked) {
-                colotshema += "Topic"
-            } else {
-                colotshema += "Emotion"
-            }
-            var start_year = slider.getValue();
+                    dimreduce += "TSNE";
+                }
+                var colotshema = "&color_sheme="
+                if (document.getElementById("topic_color").checked) {
+                    colotshema += "Topic"
+                } else {
+                    colotshema += "Emotion"
+                }
+                var start_year = slider.getValue();
             {%  endif %}
             var data = "&datasource="
-            if (document.getElementById("TwitterCheckbox").checked){
+            if (document.getElementById("TwitterCheckbox").checked) {
                 data += "t"
-            }else {
+            } else {
                 data += "n"
             }
-            if (document.getElementById("redditCheckbox").checked){
+            if (document.getElementById("redditCheckbox").checked) {
                 data += "r"
-            }else {
+            } else {
                 data += "n"
             }
-            if (document.getElementById("BlogspotCheckbox").checked){
+            if (document.getElementById("BlogspotCheckbox").checked) {
                 data += "b"
-            }else {
+            } else {
                 data += "n"
             }
-            if (data ==="&datasource=nnn"){
+            if (data === "&datasource=nnn") {
                 data = "&datasource=trb"
             }
 
@@ -206,23 +239,23 @@
 
 
             {% if dashboard %}
-                var url = "/get_chart?st_year=" + start_year[0] + "&end_year=" + start_year[1] + dimreduce + colotshema + "&mode=s"+data;
+                var url = "/get_chart?st_year=" + start_year[0] + "&end_year=" + start_year[1] + dimreduce + colotshema + "&mode=s" + data;
             {% elif qaf_dashboard %}
-                var url = "/get_chart?st_year=" + start_year[0] + "&end_year=" + start_year[1] + dimreduce + colotshema + "&mode=q"+data;
+                var url = "/get_chart?st_year=" + start_year[0] + "&end_year=" + start_year[1] + dimreduce + colotshema + "&mode=q" + data;
             {%  elif heatmap %}
-                 var url = "/heatmap_data?mode=s"+data;
-             {%  elif qaf_heatmap %}
-                var url = "/heatmap_data?mode=q"+data;
+                var url = "/heatmap_data?mode=s" + data;
+            {%  elif qaf_heatmap %}
+                var url = "/heatmap_data?mode=q" + data;
             {%  elif barchart %}
-                var url ="/get_bar_chart?mode=s"+data;
+                var url = "/get_bar_chart?mode=s" + data;
             {%  elif qaf_barchart %}
-                var url ="/get_bar_chart?mode=q"+data;
+                var url = "/get_bar_chart?mode=q" + data;
             {%  endif %}
             parse(url, "chart");
         }
 
 
-
-</script>
+    </script>
+{% endif %}
 </body>
 </html>

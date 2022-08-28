@@ -5,6 +5,9 @@ services:
     ports:
       - "80:5000"
     environment:
-      - "FLASK_APP=/etc/flask_app/app.py"
+      - "MONGO_STRING="
     volumes:
       - "./flask_app:/etc/flask_app"
+  redis:
+    image: redis:alpine
+    restart: always

@@ -4,19 +4,28 @@ from lib2to3.pgen2.pgen import DFAState
 from urllib import parse
 import pandas as pd
 from flask import Flask, request, render_template, jsonify
+from flask_caching import Cache
 import altair.vegalite.v4 as alt
 import pandas
 from sklearn.decomposition import PCA
 from sklearn.manifold import MDS, Isomap, SpectralEmbedding, TSNE
 import umap
-
 from db import DB
 
 app = Flask(__name__)
 db = DB()
+cache = Cache(app, config={'CACHE_TYPE': 'RedisCache', 'CACHE_REDIS_HOST': 'redis'})
+
+@app.get("/")
+@cache.cached(timeout=1000)
+def getstartpage():
+    scount, qcount = db.gettotalcount()
+    r,b,t,rq,bq,tq = db.countcountsources()
+    return render_template('mother_dashboard.html',startpage=True,totlacount=scount,totlacountq=qcount,twittercount=t,blogspotcount=b,redditcount=r,twittercountq=tq,blogspotcountq=bq,redditcountq=rq)
 
 
 @app.get('/visualization')
+@cache.cached(timeout=1000)
 def get_dashboard():
     return render_template('mother_dashboard.html', dashboard=True,
                            url="/get_chart?st_year=2012&end_year=2013&algo=PCA&color_sheme=Topic&mode=s&datasource=trb",
@@ -24,6 +33,7 @@ def get_dashboard():
 
 
 @app.get("/qaf-visualization")
+@cache.cached(timeout=1000)
 def get_qrt_vis():
     return render_template('mother_dashboard.html', qaf_dashboard=True,
                            url="/get_chart?st_year=2012&end_year=2013&algo=PCA&color_sheme=Topic&mode=q&datasource=trb",
@@ -31,6 +41,7 @@ def get_qrt_vis():
 
 
 @app.get("/heatmap")
+@cache.cached(timeout=1000)
 def get_heatmap():
     return render_template('mother_dashboard.html', heatmap=True,
                            url="/heatmap_data?mode=s&datasource=trb"
@@ -38,6 +49,7 @@ def get_heatmap():
 
 
 @app.get("/qaf_heatmap")
+@cache.cached(timeout=1000)
 def get_qaf_heatmap():
     return render_template('mother_dashboard.html', qaf_heatmap=True,
                            url="/heatmap_data?mode=q&datasource=trb"
@@ -45,6 +57,7 @@ def get_qaf_heatmap():
 
 
 @app.get('/barchart')
+@cache.cached(timeout=1000)
 def barchart():
     return render_template('mother_dashboard.html', barchart=True,
                            url="/get_bar_chart?mode=s&datasource=trb"

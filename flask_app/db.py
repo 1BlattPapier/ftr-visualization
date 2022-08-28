@@ -1,9 +1,10 @@
+import os
 from datetime import datetime
 import pymongo
 
 
 class DB:
-    DB_CONNECTION = '***REMOVED***'
+    DB_CONNECTION = os.environ["MONGO_STRING"]
     mongo_client = pymongo.MongoClient(DB_CONNECTION)
     mongo_future = mongo_client['ftr']
     mongo_ftr_s = mongo_future['Future_time_references']
@@ -20,7 +21,7 @@ class DB:
         cursor = self.mongo_ftr_s.find(query)
         return list(cursor)
 
-    def get_all_data(self, ftr = True,datasource = None):
+    def get_all_data(self, ftr=True, datasource=None):
         orlist = []
         if "t" in datasource:
             orlist.append({"meta.source": "TWITTER"})
@@ -35,7 +36,7 @@ class DB:
             cursor = self.mongo_ftr_q.find({}, {"emotion": 1, "topic": 1, "meta.timestamp": 1, "_id": 0})
         return list(cursor)
 
-    def filterStatements(self, st_date: datetime, end_date: datetime, ftr=True, datasource = None):
+    def filterStatements(self, st_date: datetime, end_date: datetime, ftr=True, datasource=None):
         match = {
             'meta.timestamp': {
                 '$gte': st_date,
@@ -51,7 +52,7 @@ class DB:
         }
         orlist = []
         if "t" in datasource:
-            orlist.append({"meta.source":"TWITTER"})
+            orlist.append({"meta.source": "TWITTER"})
         if "r" in datasource:
             orlist.append({"meta.source": "REDDIT"})
         if "b" in datasource:
@@ -63,3 +64,23 @@ class DB:
         else:
             cursor = self.mongo_ftr_q.find(query)
         return list(cursor)
+
+    def gettotalcount(self):
+        return self.mongo_ftr_s.count_documents({}), self.mongo_ftr_q.count_documents({})
+
+    def countcountsources(self, ftr=True):
+        queryt = {"meta.source":
+                      "TWITTER"
+                  }
+        queryb = {
+            "meta.source":
+                "BLOGSPOT"
+
+        }
+        queryr = {"meta.source":
+                      "REDDIT"
+                  }
+
+        return self.mongo_ftr_s.count_documents(queryr), self.mongo_ftr_s.count_documents(
+            queryb), self.mongo_ftr_s.count_documents(queryt), self.mongo_ftr_q.count_documents(
+            queryr), self.mongo_ftr_q.count_documents(queryb), self.mongo_ftr_q.count_documents(queryt)

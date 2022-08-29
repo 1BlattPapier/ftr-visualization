@@ -2,7 +2,7 @@ import datetime
 import os
 
 import pandas as pd
-from flask import Flask, request, render_template, send_from_directory
+from flask import Flask, request, render_template, send_from_directory, url_for
 from flask_caching import Cache
 import altair.vegalite.v4 as alt
 from sklearn.decomposition import PCA
@@ -14,11 +14,6 @@ db = DB()
 cache = Cache(app, config={'CACHE_TYPE': 'RedisCache', 'CACHE_REDIS_HOST': 'redis'})
 
 
-@app.route('/favicon.ico')
-def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static'),
-                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
-
 
 @app.get("/")
 @cache.cached(timeout=1000)
@@ -28,7 +23,11 @@ def getstartpage():
     return render_template('mother_dashboard.html', startpage=True, totlacount=scount, totlacountq=qcount,
                            twittercount=t, blogspotcount=b, redditcount=r, twittercountq=tq, blogspotcountq=bq,
                            redditcountq=rq)
-
+@app.route('/favicon.ico')
+def favicon():
+    print(os.path.join(app.root_path, 'static'))
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 @app.get('/visualization')
 @cache.cached(timeout=1000)

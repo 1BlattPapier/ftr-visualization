@@ -2,9 +2,56 @@ version: '3'
 services:
   ftr_visualization:
     image: ghcr.io/1blattpapier/ftr-visualization:main
-    ports:
-      - "80:5000"
     environment:
-      - "FLASK_APP=/etc/flask_app/app.py"
+      - MONGO_STRING=
+      - VIRTUAL_HOST=
+      - LETSENCRYPT_HOST=
+      - LETSENCRYPT_EMAIL=
     volumes:
       - "./flask_app:/etc/flask_app"
+    networks:
+      - proxy-tier
+      - default
+    depends_on:
+      - redis
+  redis:
+    image: redis:alpine
+    restart: always
+
+  proxy:
+    build: ./proxy
+    restart: always
+    ports:
+      - 80:80
+      - 443:443
+    labels:
+      com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy: "true"
+    volumes:
+      - certs:/etc/nginx/certs:ro
+      - vhost.d:/etc/nginx/vhost.d
+      - html:/usr/share/nginx/html
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    networks:
+      - proxy-tier
+
+  letsencrypt-companion:
+      image: nginxproxy/acme-companion
+      restart: always
+      volumes:
+        - certs:/etc/nginx/certs
+        - acme:/etc/acme.sh
+        - vhost.d:/etc/nginx/vhost.d
+        - html:/usr/share/nginx/html
+        - /var/run/docker.sock:/var/run/docker.sock:ro
+      networks:
+        - proxy-tier
+      depends_on:
+        - proxy
+volumes:
+    certs:
+    acme:
+    vhost.d:
+    html:
+
+networks:
+    proxy-tier:

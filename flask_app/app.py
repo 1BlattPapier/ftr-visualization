@@ -1,15 +1,10 @@
 import datetime
-import json
-from lib2to3.pgen2.pgen import DFAState
-from urllib import parse
 import pandas as pd
-from flask import Flask, request, render_template, jsonify
+from flask import Flask, request, render_template
 from flask_caching import Cache
 import altair.vegalite.v4 as alt
-import pandas
 from sklearn.decomposition import PCA
 from sklearn.manifold import MDS, Isomap, SpectralEmbedding, TSNE
-import umap
 from db import DB
 
 app = Flask(__name__)
@@ -127,7 +122,7 @@ def get_bar_chart():
     args = request.args
     db_results = db.get_all_data(ftr=args.get("mode") == "s",datasource=args.get("datasource"))
     timestamp = [x["meta"]["timestamp"].year for x in db_results]
-    data_df = pandas.DataFrame.from_records(db_results)
+    data_df = pd.DataFrame.from_records(db_results)
     data_df.pop("meta")
     data_df["Year"] = timestamp
 
@@ -196,7 +191,7 @@ def get_new_dashboard():
         topic_dict.update(emotion_dict)
         data.append(topic_dict)
 
-    data_df = pandas.DataFrame.from_records(data)
+    data_df = pd.DataFrame.from_records(data)
     data_df = data_df.sample(frac=1)
     if len(data_df) > 10000:
         data_df = data_df.iloc[:10000, :]
@@ -302,7 +297,7 @@ def get_heatmap_data():
     args = request.args
     db_results = db.get_all_data(ftr=args.get("mode") == "s",datasource=args.get("datasource"))
     timestamp = [x["meta"]["timestamp"].year for x in db_results]
-    data_df = pandas.DataFrame.from_records(db_results)
+    data_df = pd.DataFrame.from_records(db_results)
     data_df.pop("meta")
     data_df["Year"] = timestamp
     heat_topic = alt.Chart().mark_rect().encode(

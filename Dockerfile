@@ -6,4 +6,4 @@ RUN mkdir "/etc/flask_app"
 #ENV FLASK_RUN_HOST=0.0.0.0
 #ADD flask_app flask_app
 WORKDIR /etc/flask_app
-CMD [ "gunicorn", "--bind","0.0.0.0:5000","wsgi:app", "-t", "900" ]
+CMD [ "gunicorn", "--bind","0.0.0.0:5000","wsgi:app","-w","7", "-t", "900" ]

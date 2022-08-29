@@ -1,6 +1,8 @@
 import datetime
+import os
+
 import pandas as pd
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, send_from_directory
 from flask_caching import Cache
 import altair.vegalite.v4 as alt
 from sklearn.decomposition import PCA
@@ -11,12 +13,21 @@ app = Flask(__name__)
 db = DB()
 cache = Cache(app, config={'CACHE_TYPE': 'RedisCache', 'CACHE_REDIS_HOST': 'redis'})
 
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
+
+
 @app.get("/")
 @cache.cached(timeout=1000)
 def getstartpage():
     scount, qcount = db.gettotalcount()
-    r,b,t,rq,bq,tq = db.countcountsources()
-    return render_template('mother_dashboard.html',startpage=True,totlacount=scount,totlacountq=qcount,twittercount=t,blogspotcount=b,redditcount=r,twittercountq=tq,blogspotcountq=bq,redditcountq=rq)
+    r, b, t, rq, bq, tq = db.countcountsources()
+    return render_template('mother_dashboard.html', startpage=True, totlacount=scount, totlacountq=qcount,
+                           twittercount=t, blogspotcount=b, redditcount=r, twittercountq=tq, blogspotcountq=bq,
+                           redditcountq=rq)
 
 
 @app.get('/visualization')
@@ -120,7 +131,7 @@ def emotions_topics_to_vector(db_results):
 def get_bar_chart():
     alt.data_transformers.disable_max_rows()
     args = request.args
-    db_results = db.get_all_data(ftr=args.get("mode") == "s",datasource=args.get("datasource"))
+    db_results = db.get_all_data(ftr=args.get("mode") == "s", datasource=args.get("datasource"))
     timestamp = [x["meta"]["timestamp"].year for x in db_results]
     data_df = pd.DataFrame.from_records(db_results)
     data_df.pop("meta")
@@ -295,7 +306,7 @@ def get_new_dashboard():
 def get_heatmap_data():
     alt.data_transformers.disable_max_rows()
     args = request.args
-    db_results = db.get_all_data(ftr=args.get("mode") == "s",datasource=args.get("datasource"))
+    db_results = db.get_all_data(ftr=args.get("mode") == "s", datasource=args.get("datasource"))
     timestamp = [x["meta"]["timestamp"].year for x in db_results]
     data_df = pd.DataFrame.from_records(db_results)
     data_df.pop("meta")
@@ -335,6 +346,3 @@ def get_heatmap_data():
     )
 
     return chart.to_json()
-
-
-
